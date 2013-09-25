@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/component.iml" filepath="$PROJECT_DIR$/component.iml" />
+      <module fileurl="file://$PROJECT_DIR$/studio-pojo/studio-pojo.iml" filepath="$PROJECT_DIR$/studio-pojo/studio-pojo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/studio-server/studio-server.iml" filepath="$PROJECT_DIR$/studio-server/studio-server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/studio-service/studio-service.iml" filepath="$PROJECT_DIR$/studio-service/studio-service.iml" />
+    </modules>
+  </component>
+</project>
+

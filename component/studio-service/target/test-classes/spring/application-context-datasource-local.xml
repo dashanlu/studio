@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Application context file for create Datasource configuration-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+            http://www.springframework.org/schema/tx
+            http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
+    <tx:annotation-driven/>
+
+    <bean id="pool" class="org.apache.commons.pool.impl.GenericObjectPool">
+        <property name="minEvictableIdleTimeMillis">
+            <value>300000</value>
+        </property>
+        <property name="timeBetweenEvictionRunsMillis">
+            <value>60000</value>
+        </property>
+    </bean>
+
+    <bean id="studiodbDataSourceNoPool" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName">
+            <value>${hsql.driver}</value>
+        </property>
+        <property name="url">
+            <value>${hsql.url}</value>
+        </property>
+        <property name="username">
+            <value>${hsql.user}</value>
+        </property>
+        <property name="password">
+            <value></value>
+        </property>
+    </bean>
+
+    <bean id="dsConnectionFactory" class="org.apache.commons.dbcp.DataSourceConnectionFactory">
+        <constructor-arg>
+            <ref bean="studiodbDataSourceNoPool"/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="poolableConnectionFactory" class="org.apache.commons.dbcp.PoolableConnectionFactory">
+        <constructor-arg index="0">
+            <ref bean="dsConnectionFactory"/>
+        </constructor-arg>
+        <constructor-arg index="1">
+            <ref bean="pool"/>
+        </constructor-arg>
+        <constructor-arg index="2">
+            <null></null>
+        </constructor-arg>
+        <constructor-arg index="3">
+            <null></null>
+        </constructor-arg>
+        <!--default ready-only-->
+        <constructor-arg index="4">
+            <value>false</value>
+        </constructor-arg>
+        <!--default auto-commit-->
+        <constructor-arg index="5">
+            <value>true</value>
+        </constructor-arg>
+    </bean>
+
+    <bean id="studiodbDataSource" class="org.apache.commons.dbcp.PoolingDataSource"
+          depends-on="poolableConnectionFactory">
+        <constructor-arg>
+            <ref bean="pool"/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource">
+            <ref bean="studiodbDataSource"/>
+        </property>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+                <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+                <prop key="hibernate.cache.region.factory_class">${hibernate.cache.region.factory_class}</prop>
+                <prop key="hibernate.cache.use_second_level_cache">${hibernate.cache.use_second_level_cache}</prop>
+                <prop key="hibernate.cache.use_query_cache">${hibernate.cache.use_query_cache}</prop>
+            </props>
+        </property>
+        <property name="packagesToScan" value="com.mwstudio.component.rest.dao.entity"/>
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="dataSource" ref="studiodbDataSource"/>
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+</beans>

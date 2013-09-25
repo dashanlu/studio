@@ -1,0 +1,166 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.mwstudio.component</groupId>
+        <artifactId>component</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>studio-service</artifactId>
+    <packaging>war</packaging>
+
+    <name>Studio Restful Interface</name>
+    <url>http://maven.apache.org</url>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.mwstudio.component</groupId>
+            <artifactId>studio-pojo</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>studio-rest</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <excludes>
+                    <exclude>env/*.properties</exclude>
+                </excludes>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+    </build>
+    <profiles>
+        <profile>
+            <id>inMemory</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <!-- sql-maven-plugin create schema and load data into HSQLDB -->
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>properties-maven-plugin</artifactId>
+                        <version>1.0-alpha-2</version>
+                        <executions>
+                            <execution>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>read-project-properties</goal>
+                                </goals>
+                                <configuration>
+                                    <files>
+                                        <file>src/main/resources/env/inMemory-test.properties</file>
+                                    </files>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>sql-maven-plugin</artifactId>
+                        <version>${sql-maven-plugin-version}</version>
+
+                        <dependencies>
+                            <!-- inMemory DB it needs HSQLDB -->
+                            <dependency>
+                                <groupId>org.hsqldb</groupId>
+                                <artifactId>hsqldb</artifactId>
+                                <version>2.2.9</version>
+                            </dependency>
+                        </dependencies>
+                        <!-- configuration for UnitTest and inMemory integration test -->
+                        <configuration>
+
+                            <!--ignore the error, as the plugin will fill the value into placeholder during build -->
+                            <username>${hsql.user}</username>
+                            <password/>
+
+                            <driver>${hsql.driver}</driver>
+                            <url>${hsql.url}</url>
+
+                            <!-- all executions are skipped if -DskipTests=true -->
+                            <!-- this variable is taken from mvn parameter input -->
+                            <!--
+                                                        <skip>${skipTests}</skip>
+                            -->
+                        </configuration>
+
+                        <executions>
+                            <!-- list of actions taken by this plugin -->
+                            <execution>
+                                <id>drop-db-before-test</id>
+                                <phase>process-test-resources</phase>
+                                <goals>
+                                    <goal>execute</goal>
+                                </goals>
+                                <configuration>
+                                    <autocommit>true</autocommit>
+                                    <srcFiles>
+                                        <srcFile>target/test-classes/testDB/studio-hsqldb-drop-schema.sql</srcFile>
+                                    </srcFiles>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>create-db-before-test</id>
+                                <phase>process-test-resources</phase>
+                                <goals>
+                                    <goal>execute</goal>
+                                </goals>
+                                <configuration>
+                                    <autocommit>true</autocommit>
+                                    <srcFiles>
+                                        <srcFile>target/test-classes/testDB/studio-hsqldb-create-schema.sql</srcFile>
+                                    </srcFiles>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <properties>
+            </properties>
+        </profile>
+        <profile>
+            <id>local</id>
+            <!-- default profile is local -->
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <filters>
+                    <filter>src/main/resources/env/local.properties</filter>
+                </filters>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>properties-maven-plugin</artifactId>
+                        <version>1.0-alpha-2</version>
+                        <executions>
+                            <execution>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>read-project-properties</goal>
+                                </goals>
+                                <configuration>
+                                    <files>
+                                        <file>src/main/resources/env/inMemory-test.properties</file>
+                                    </files>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

@@ -1,0 +1,71 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.mwstudio.component</groupId>
+        <artifactId>component</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>studio-pojo</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Studio POJO objects</name>
+    <url>http://maven.apache.org</url>
+
+    <build>
+        <plugins>
+            <!-- maven compiler plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>${java-version}</source>
+                    <target>${java-version}</target>
+                </configuration>
+            </plugin>
+            <!-- surefire for test reports -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.12</version>
+                <configuration>
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
+                    <excludes>
+                        <exclude>**/Abstract*.java</exclude>
+                    </excludes>
+                    <junitArtifactName>junit:junit</junitArtifactName>
+                    <argLine>-Xmx256m</argLine>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxb2-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>status</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <!--null means all schema files are taken as parameters by default-->
+                            <!--<schemaListFileName></schemaListFileName>-->
+                            <schemaDirectory>src/main/schema</schemaDirectory>
+                            <schemaFiles>bookingInfo.xsd</schemaFiles>
+                            <packageName>com.mwstudio.component.rest.jaxb.pojo</packageName>
+                            <staleFile>${project.build.directory}/generated-sources/studioPojo</staleFile>
+                            <generatedResourcesDirectory>${project.build.directory}/generated-sources</generatedResourcesDirectory>
+                            <!--do not remove the java filess generated from last execution-->
+                            <clearOutputDir>false</clearOutputDir>
+                        </configuration>
+                        <goals>
+                            <goal>xjc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
